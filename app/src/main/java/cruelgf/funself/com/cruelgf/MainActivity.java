@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.iflytek.cloud.ErrorCode;
@@ -18,6 +20,9 @@ import com.iflytek.cloud.SynthesizerListener;
 import com.zhy.m.permission.MPermissions;
 import com.zhy.m.permission.PermissionDenied;
 import com.zhy.m.permission.PermissionGrant;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
     //读取SD卡
     private static final int REQUECT_CODE_READSDCARD = 1005;
 
+    private List<String> speechList = new ArrayList<>();
+
     private SpeechSynthesizer mTts;
 
     @Override
@@ -44,7 +51,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         SpeechUtility.createUtility(this, SpeechConstant.APPID +"=5c25d3f7");
         requestPermission();
-
+        initData();
+        initView();
     }
 
     private void requestPermission() {
@@ -53,6 +61,24 @@ public class MainActivity extends AppCompatActivity {
         MPermissions.requestPermissions(MainActivity.this, REQUECT_CODE_PHONESTATE, Manifest.permission.READ_PHONE_STATE);
         MPermissions.requestPermissions(MainActivity.this, REQUECT_CODE_CONTACTS, Manifest.permission.READ_CONTACTS);
         MPermissions.requestPermissions(MainActivity.this, REQUECT_CODE_READSDCARD, Manifest.permission.READ_EXTERNAL_STORAGE);
+    }
+
+    public void initView() {
+        ImageView gf_iv_main = findViewById(R.id.gf_iv_main);
+        gf_iv_main.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int rand = (int)(Math.random() * speechList.size());
+                mTts.startSpeaking( speechList.get(rand), mTtsListener );
+            }
+        });
+    }
+
+    public void initData() {
+        speechList.add("主人,你好坏");
+        speechList.add("主人,别碰我");
+        speechList.add("主人,你这个变态");
+        speechList.add("嗯啊");
     }
 
     @PermissionGrant(REQUECT_CODE_AUDIO)
