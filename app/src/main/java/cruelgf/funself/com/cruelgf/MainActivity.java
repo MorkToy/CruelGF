@@ -75,10 +75,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void initData() {
-        speechList.add("主人,你好坏");
-        speechList.add("主人,别碰我");
-        speechList.add("主人,你这个变态");
-        speechList.add("嗯啊");
+        speechList.add("主人,你好坏,没想到你是这样的人");
+        speechList.add("主人,再说一遍,别碰我");
+        speechList.add("主人,你这个变态,别碰我");
+        speechList.add("在碰我咬你");
     }
 
     @PermissionGrant(REQUECT_CODE_AUDIO)

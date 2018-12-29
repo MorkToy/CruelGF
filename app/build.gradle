@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+            keyAlias 'key.keystore'
+            keyPassword 'yannic'
+            storeFile file('D:/Hilink_Client/Android4Tencent/AndroidShellForJokes/key.keystore')
+            storePassword 'yannic'
+        }
+    }
     compileSdkVersion 28
     defaultConfig {
         applicationId "cruelgf.funself.com.cruelgf"
@@ -15,6 +23,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            signingConfig signingConfigs.release
         }
     }
 }
