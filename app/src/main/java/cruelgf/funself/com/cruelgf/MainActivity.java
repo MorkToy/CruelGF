@@ -176,6 +176,9 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    /**
+     * 初始化合成语言.
+     */
     public void wakeup() {
         //科大讯飞语言初始化//文档中心：https://doc.xfyun.cn/msc_android/
         mTts = SpeechSynthesizer.createSynthesizer(this, mTtsInitListener);
@@ -188,15 +191,13 @@ public class MainActivity extends AppCompatActivity {
             if (code != ErrorCode.SUCCESS) {
                 Log.e(TAG,"初始化失败,错误码："+code);
             } else {
-                // 初始化成功，之后可以调用startSpeaking方法
-                // 注：有的开发者在onCreate方法中创建完合成对象之后马上就调用startSpeaking进行合成，
-                // 正确的做法是将onCreate中的startSpeaking调用移至这里
                 showTip("初始化成功");
                 mTts.setParameter( SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD );
                 mTts.setParameter( SpeechConstant.ENGINE_MODE, SpeechConstant.MODE_AUTO );
                 mTts.setParameter( SpeechConstant.VOICE_NAME, mVoiceName );
 
                 final String strTextToSpeech = "欢迎主人";
+                //开始说话
                 mTts.startSpeaking( strTextToSpeech, mTtsListener );
             }
         }
