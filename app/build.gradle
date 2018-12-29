@@ -37,4 +37,5 @@ dependencies {
     annotationProcessor 'com.zhy:mpermission-compiler:1.0.0'
     implementation 'com.zhy:mpermission-api:1.0.0'
     implementation project(':iflytek_sdk')
+    implementation project(':cruelfloat_sdk')
 }

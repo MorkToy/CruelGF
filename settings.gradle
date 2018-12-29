@@ -1,1 +1,1 @@
-include ':app', ':iflytek_sdk'
+include ':app', ':iflytek_sdk', ':cruelfloat_sdk'

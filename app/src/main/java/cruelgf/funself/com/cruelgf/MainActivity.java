@@ -24,10 +24,14 @@ import com.zhy.m.permission.PermissionGrant;
 import java.util.ArrayList;
 import java.util.List;
 
+import cruelgf.funself.com.cruelfloat_sdk.FloatWindow;
+import cruelgf.funself.com.cruelfloat_sdk.Screen;
+import cruelgf.funself.com.cruelfloat_sdk.ViewStateListener;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-    //语言类型
+    //语言类型，这里不要随意更改名字
     private static final String mVoiceName = "nannan";
 
     //sd卡写入权限
@@ -40,10 +44,14 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUECT_CODE_CONTACTS = 1004;
     //读取SD卡
     private static final int REQUECT_CODE_READSDCARD = 1005;
+    //悬浮窗
+    private static final int REQUECT_CODE_WINDOW = 1006;
 
     private List<String> speechList = new ArrayList<>();
 
     private SpeechSynthesizer mTts;
+
+    private ImageView gf_iv_main;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,18 +61,71 @@ public class MainActivity extends AppCompatActivity {
         requestPermission();
         initData();
         initView();
+        initListener();
     }
 
     private void requestPermission() {
-        MPermissions.requestPermissions(MainActivity.this, REQUECT_CODE_SDCARD, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        MPermissions.requestPermissions(MainActivity.this, REQUECT_CODE_SDCARD, Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_EXTERNAL_STORAGE);
+
         MPermissions.requestPermissions(MainActivity.this, REQUECT_CODE_AUDIO, Manifest.permission.RECORD_AUDIO);
-        MPermissions.requestPermissions(MainActivity.this, REQUECT_CODE_PHONESTATE, Manifest.permission.READ_PHONE_STATE);
+        /*MPermissions.requestPermissions(MainActivity.this, REQUECT_CODE_PHONESTATE, Manifest.permission.READ_PHONE_STATE);
         MPermissions.requestPermissions(MainActivity.this, REQUECT_CODE_CONTACTS, Manifest.permission.READ_CONTACTS);
-        MPermissions.requestPermissions(MainActivity.this, REQUECT_CODE_READSDCARD, Manifest.permission.READ_EXTERNAL_STORAGE);
+        MPermissions.requestPermissions(MainActivity.this, REQUECT_CODE_READSDCARD, Manifest.permission.READ_EXTERNAL_STORAGE);*/
     }
 
     public void initView() {
-        ImageView gf_iv_main = findViewById(R.id.gf_iv_main);
+        gf_iv_main = findViewById(R.id.gf_iv_main);
+        ImageView imageView = new ImageView(getApplicationContext());
+        imageView.setImageResource(R.mipmap.icon);
+        FloatWindow
+                .with(getApplicationContext())
+                .setView(imageView)
+                .setWidth(100)                               //设置控件宽高
+                .setHeight(Screen.width,0.2f)
+                .setX(100)                                   //设置控件初始位置
+                .setY(Screen.height,0.3f)
+                .setDesktopShow(true)                        //桌面显示
+                .setViewStateListener(new ViewStateListener() {
+                    @Override
+                    public void onPositionUpdate(int i, int i1) {
+
+                    }
+
+                    @Override
+                    public void onShow() {
+
+                    }
+
+                    @Override
+                    public void onHide() {
+
+                    }
+
+                    @Override
+                    public void onDismiss() {
+
+                    }
+
+                    @Override
+                    public void onMoveAnimStart() {
+
+                    }
+
+                    @Override
+                    public void onMoveAnimEnd() {
+
+                    }
+
+                    @Override
+                    public void onBackToDesktop() {
+
+                    }
+                })
+                .build();
+
+    }
+
+    public void initListener() {
         gf_iv_main.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -81,8 +142,12 @@ public class MainActivity extends AppCompatActivity {
         speechList.add("在碰我咬你");
     }
 
+    /**
+     * 媒体授权成功.
+     */
     @PermissionGrant(REQUECT_CODE_AUDIO)
     public void requestAudioSuccess() {
+        MPermissions.requestPermissions(MainActivity.this, REQUECT_CODE_WINDOW, Manifest.permission.SYSTEM_ALERT_WINDOW);
         //初始化
         wakeup();
     }
@@ -90,6 +155,19 @@ public class MainActivity extends AppCompatActivity {
     @PermissionDenied(REQUECT_CODE_AUDIO)
     public void requestAudioFailed() {
         showTip("授权失败");
+    }
+
+    /**
+     * 悬浮窗授权成功.
+     */
+    @PermissionGrant(REQUECT_CODE_WINDOW)
+    public void requestWindwoSuccess() {
+
+    }
+
+    @PermissionDenied(REQUECT_CODE_WINDOW)
+    public void requestWindowFailed() {
+        showTip("悬浮窗授权失败");
     }
 
     @Override
@@ -118,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
                 mTts.setParameter( SpeechConstant.ENGINE_MODE, SpeechConstant.MODE_AUTO );
                 mTts.setParameter( SpeechConstant.VOICE_NAME, mVoiceName );
 
-                final String strTextToSpeech = "主淫,你来了";
+                final String strTextToSpeech = "欢迎主人";
                 mTts.startSpeaking( strTextToSpeech, mTtsListener );
             }
         }
