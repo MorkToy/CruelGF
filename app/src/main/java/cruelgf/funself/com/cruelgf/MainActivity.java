@@ -9,6 +9,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.iflytek.cloud.ErrorCode;
 import com.iflytek.cloud.InitListener;
 import com.iflytek.cloud.SpeechConstant;
@@ -27,6 +30,7 @@ import java.util.List;
 import cruelgf.funself.com.cruelfloat_sdk.FloatWindow;
 import cruelgf.funself.com.cruelfloat_sdk.Screen;
 import cruelgf.funself.com.cruelfloat_sdk.ViewStateListener;
+import cruelgf.funself.com.cruelgf.listner.CruelSpeechListener;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -53,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageView gf_iv_main;
 
+    private ImageView gf_iv_main_gif;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,26 +70,34 @@ public class MainActivity extends AppCompatActivity {
         initListener();
     }
 
+    /**
+     * 申请权限.
+     */
     private void requestPermission() {
         MPermissions.requestPermissions(MainActivity.this, REQUECT_CODE_SDCARD, Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_EXTERNAL_STORAGE);
 
         MPermissions.requestPermissions(MainActivity.this, REQUECT_CODE_AUDIO, Manifest.permission.RECORD_AUDIO);
-        /*MPermissions.requestPermissions(MainActivity.this, REQUECT_CODE_PHONESTATE, Manifest.permission.READ_PHONE_STATE);
-        MPermissions.requestPermissions(MainActivity.this, REQUECT_CODE_CONTACTS, Manifest.permission.READ_CONTACTS);
-        MPermissions.requestPermissions(MainActivity.this, REQUECT_CODE_READSDCARD, Manifest.permission.READ_EXTERNAL_STORAGE);*/
     }
 
+    /**
+     * 初始化UI.
+     */
     public void initView() {
+        //主封面图
         gf_iv_main = findViewById(R.id.gf_iv_main);
-        ImageView imageView = new ImageView(getApplicationContext());
-        imageView.setImageResource(R.mipmap.icon);
+        //设置GIF动图
+        gf_iv_main_gif = new ImageView(getApplicationContext());
+        RequestOptions options = new RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE);
+        Glide.with(this).load(R.drawable.main_gf).apply(options).into(gf_iv_main_gif);
+        //设置开启悬浮窗
         FloatWindow
                 .with(getApplicationContext())
-                .setView(imageView)
-                .setWidth(100)                               //设置控件宽高
-                .setHeight(Screen.width,0.2f)
-                .setX(100)                                   //设置控件初始位置
-                .setY(Screen.height,0.3f)
+                .setView(gf_iv_main_gif)
+                .setWidth(300)                               //设置控件宽高
+                .setHeight(Screen.width,0.1f)
+                .setX(300)                                   //设置控件初始位置
+                .setY(Screen.height,0.1f)
                 .setDesktopShow(true)                        //桌面显示
                 .setViewStateListener(new ViewStateListener() {
                     @Override
@@ -125,16 +139,22 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * 事件监听.
+     */
     public void initListener() {
         gf_iv_main.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 int rand = (int)(Math.random() * speechList.size());
-                mTts.startSpeaking( speechList.get(rand), mTtsListener );
+                mTts.startSpeaking( speechList.get(rand), new CruelSpeechListener(MainActivity.this, mTts) );
             }
         });
     }
 
+    /**
+     * 初始化数据.
+     */
     public void initData() {
         speechList.add("主人,你好坏,没想到你是这样的人");
         speechList.add("主人,再说一遍,别碰我");
@@ -181,83 +201,9 @@ public class MainActivity extends AppCompatActivity {
      */
     public void wakeup() {
         //科大讯飞语言初始化//文档中心：https://doc.xfyun.cn/msc_android/
-        mTts = SpeechSynthesizer.createSynthesizer(this, mTtsInitListener);
+        mTts = SpeechSynthesizer.createSynthesizer(this, new CruelSpeechListener(this, mTts));
     }
 
-    private InitListener mTtsInitListener = new InitListener() {
-        @Override
-        public void onInit(int code) {
-            Log.d(TAG, "InitListener init() code = " + code);
-            if (code != ErrorCode.SUCCESS) {
-                Log.e(TAG,"初始化失败,错误码："+code);
-            } else {
-                showTip("初始化成功");
-                mTts.setParameter( SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD );
-                mTts.setParameter( SpeechConstant.ENGINE_MODE, SpeechConstant.MODE_AUTO );
-                mTts.setParameter( SpeechConstant.VOICE_NAME, mVoiceName );
-
-                final String strTextToSpeech = "欢迎主人";
-                //开始说话
-                mTts.startSpeaking( strTextToSpeech, mTtsListener );
-            }
-        }
-    };
-
-    /**
-     * 合成回调监听。
-     */
-    private SynthesizerListener mTtsListener = new SynthesizerListener() {
-
-        @Override
-        public void onSpeakBegin() {
-            showTip("开始播放");
-        }
-
-        @Override
-        public void onSpeakPaused() {
-            showTip("暂停播放");
-        }
-
-        @Override
-        public void onSpeakResumed() {
-            showTip("继续播放");
-        }
-
-        @Override
-        public void onCompleted(SpeechError speechError) {
-            showTip("播放完毕");
-        }
-
-        @Override
-        public void onBufferProgress(int percent, int beginPos, int endPos,
-                                     String info) {
-
-        }
-
-        @Override
-        public void onSpeakProgress(int percent, int beginPos, int endPos) {
-            // 播放进度
-
-        }
-
-
-
-        @Override
-        public void onEvent(int eventType, int arg1, int arg2, Bundle obj) {
-            // 以下代码用于获取与云端的会话id，当业务出错时将会话id提供给技术支持人员，可用于查询会话日志，定位出错原因
-            // 若使用本地能力，会话id为null
-            //	if (SpeechEvent.EVENT_SESSION_ID == eventType) {
-            //		String sid = obj.getString(SpeechEvent.KEY_EVENT_SESSION_ID);
-            //		Log.d(TAG, "session id =" + sid);
-            //	}
-
-            if (SpeechEvent.EVENT_TTS_BUFFER == eventType) {
-                byte[] buf = obj.getByteArray(SpeechEvent.KEY_EVENT_TTS_BUFFER);
-                Log.e("MscSpeechLog", "buf is =" + buf);
-            }
-
-        }
-    };
 
     @Override
     protected void onDestroy() {
